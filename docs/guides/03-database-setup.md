@@ -298,7 +298,7 @@ npm run dev
 
 ### 8.1 Truy cập Dashboard
 
-- Truy cập: https://dashboard.convex.dev/
+- Truy cập: [Convex Dashboard](https://dashboard.convex.dev/)
 
 - Tại đây bạn có thể:
   - Xem và chỉnh sửa dữ liệu trong database

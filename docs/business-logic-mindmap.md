@@ -75,7 +75,7 @@ flowchart TD
     ShowContent["📄 Hiển Thị Nội Dung<br/>Chính (Children)"]
 
     Unauthenticated["❌ Unauthenticated State"]
-    ShowUnauth["🚫 Hiển Thị<br/>UnanthenticatedView"]
+    ShowUnauth["🚫 Hiển Thị<br/>unauthenticatedView"]
     SignInBtn["🔑 Nút Sign In"]
     SignUpBtn["📝 Nút Sign Up"]
 
@@ -218,71 +218,12 @@ graph TB
     Authenticated --> UserButton["👤 UserButton"]
     Authenticated --> Children["📄 Children Content"]
 
-    Unauthenticated --> UnanthView["🚫 UnanthenticatedView"]
+    Unauthenticated --> UnanthView["🚫 unauthenticatedView"]
     AuthLoading --> LoadingView["⏳ AuthLoadingView"]
 
     style ClerkProvider fill:#ffd6e8
     style ConvexProvider fill:#e1f5ff
     style ThemeProvider fill:#f0e6ff
-```
-
-## Luồng Dữ Liệu Chi Tiết (Detailed Data Flow)
-
-```mermaid
-sequenceDiagram
-    participant U as 👤 User
-    participant UI as 🎨 UI Component
-    participant Hook as 🪝 React Hook
-    participant Convex as 🔄 Convex Client
-    participant Auth as 🔐 Auth Layer
-    participant Handler as 📡 Handler Function
-    participant DB as 💾 Database
-
-    Note over U,DB: Luồng Tạo Project Mới
-
-    U->>UI: Click "Create Project"
-    UI->>Hook: useMutation.create({name})
-    Hook->>Convex: Gửi mutation request
-    Convex->>Auth: Xác thực JWT token
-    Auth-->>Convex: Identity verified
-    Convex->>Handler: Execute mutation handler
-    Handler->>Handler: Kiểm tra identity
-    alt Identity exists
-        Handler->>DB: Insert project record
-        DB-->>Handler: Return project ID
-        Handler-->>Convex: Success response
-        Convex-->>Hook: Update local state
-        Hook-->>UI: Re-render với data mới
-        UI-->>U: Hiển thị project mới
-    else No identity
-        Handler-->>Convex: Throw "Unauthorized"
-        Convex-->>Hook: Error response
-        Hook-->>UI: Show error
-        UI-->>U: Hiển thị lỗi
-    end
-
-    Note over U,DB: Luồng Lấy Danh Sách Projects
-
-    U->>UI: Load page
-    UI->>Hook: useQuery.get()
-    Hook->>Convex: Gửi query request
-    Convex->>Auth: Xác thực JWT token
-    Auth-->>Convex: Identity verified
-    Convex->>Handler: Execute query handler
-    Handler->>Handler: Kiểm tra identity
-    alt Identity exists
-        Handler->>DB: Query by ownerId index
-        DB-->>Handler: Return projects array
-        Handler-->>Convex: Success response
-        Convex-->>Hook: Update local state
-        Hook-->>UI: Render projects list
-        UI-->>U: Hiển thị danh sách
-    else No identity
-        Handler-->>Convex: Return empty array
-        Convex-->>Hook: Empty state
-        Hook-->>UI: Render empty state
-        UI-->>U: Hiển thị trống
-    end
 ```
 
 ## Component Architecture
@@ -313,7 +254,7 @@ graph TB
 
     subgraph "🔐 Auth Feature"
         AuthLoading["auth/components/<br/>auth-loading-view.tsx"]
-        Unauth["auth/components/<br/>unanthenticated-view.tsx"]
+        Unauth["auth/components/<br/>unauthenticated-view.tsx"]
     end
 
     App --> Providers

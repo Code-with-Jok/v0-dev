@@ -10,7 +10,7 @@ import {
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { ShieldAlertIcon } from "lucide-react";
 
-const UnanthenticatedView = () => {
+const UnauthenticatedView = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-background">
       <div className="w-full max-w-lg bg-muted">
@@ -38,4 +38,4 @@ const UnanthenticatedView = () => {
   );
 };
 
-export default UnanthenticatedView;
+export default UnauthenticatedView;
