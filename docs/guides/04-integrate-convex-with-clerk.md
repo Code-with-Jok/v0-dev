@@ -115,7 +115,7 @@ export default {
 "use client";
 
 import AuthLoadingView from "@/features/auth/components/auth-loading-view";
-import unauthenticatedView from "@/features/auth/components/unauthenticated-view";
+import UnauthenticatedView from "@/features/auth/components/Unauthenticated-view";
 import { ClerkProvider, useAuth, UserButton } from "@clerk/nextjs";
 import {
   Authenticated,
@@ -148,7 +148,7 @@ export const Providers = ({ children }: { children: ReactNode }) => {
             {children}
           </Authenticated>
           <Unauthenticated>
-            <unauthenticatedView />
+            <UnauthenticatedView />
           </Unauthenticated>
           <AuthLoading>
             <AuthLoadingView />
@@ -228,7 +228,7 @@ export default function RootLayout({
 
 ### 6.1 Unauthenticated View
 
-- Tạo file `src/features/auth/components/unauthenticated-view.tsx`:
+- Tạo file `src/features/auth/components/Unauthenticated-view.tsx`:
 
 ```tsx
 import { Button } from "@/components/ui/button";
@@ -243,7 +243,7 @@ import {
 import { SignInButton, SignUpButton } from "@clerk/nextjs";
 import { ShieldAlertIcon } from "lucide-react";
 
-const unauthenticatedView = () => {
+const UnauthenticatedView = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-background">
       <div className="w-full max-w-lg bg-muted">
@@ -271,7 +271,7 @@ const unauthenticatedView = () => {
   );
 };
 
-export default unauthenticatedView;
+export default UnauthenticatedView;
 ```
 
 ### 6.2 Auth Loading View
@@ -403,7 +403,7 @@ export default defineSchema({
 
 ### 9.1 Kiểm tra Flow
 
-1. **Chưa đăng nhập**: Truy cập ứng dụng, bạn sẽ thấy `unauthenticatedView` với nút Sign In/Sign Up.
+1. **Chưa đăng nhập**: Truy cập ứng dụng, bạn sẽ thấy `UnauthenticatedView` với nút Sign In/Sign Up.
 
 2. **Đăng nhập**: Click Sign In, đăng nhập với Clerk. Sau khi đăng nhập thành công, bạn sẽ thấy nội dung chính của ứng dụng.
 
@@ -411,7 +411,7 @@ export default defineSchema({
 
 4. **Xem dữ liệu**: Chỉ các projects của bạn sẽ được hiển thị.
 
-5. **Đăng xuất**: Click vào `UserButton` và chọn Sign Out. Bạn sẽ quay lại `unauthenticatedView`.
+5. **Đăng xuất**: Click vào `UserButton` và chọn Sign Out. Bạn sẽ quay lại `UnauthenticatedView`.
 
 ### 9.2 Kiểm tra trong Convex Dashboard
 
