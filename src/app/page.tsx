@@ -19,7 +19,7 @@ export default function Home() {
 
       {projects?.map((project: Doc<"project">) => (
         <div key={project._id} className="border rounded p-2 flex flex-col">
-          <p>{project.name}</p> <p>{project._id}</p>
+          <p>{project.name}</p> <p>{project.ownerId}</p>
         </div>
       ))}
     </div>
