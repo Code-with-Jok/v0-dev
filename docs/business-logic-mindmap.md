@@ -44,6 +44,14 @@ graph TB
     subgraph "AI - Vercel AI SDK"
         AISDK["🤖 AI SDK"]
         Gemini["✨ Gemini"]
+        AITelemetry["📊 AI Telemetry"]
+    end
+
+    subgraph "Error Monitoring - Sentry"
+        SentryClient["🐛 Sentry Client"]
+        SentryServer["🐛 Sentry Server"]
+        SentryInngest["🐛 Sentry Middleware"]
+        SentryAI["🐛 Vercel AI Integration"]
     end
 
     User --> UI --> Pages
@@ -56,6 +64,13 @@ graph TB
     Pages --> InngestClient --> Functions
     Functions --> URLExtract --> Firecrawl
     Firecrawl --> AISDK --> Gemini
+    AISDK --> AITelemetry
+
+    Pages --> SentryClient
+    Mutations & Queries --> SentryServer
+    Functions --> SentryInngest
+    AITelemetry --> SentryAI
+    SentryClient & SentryServer & SentryInngest & SentryAI --> SentryDashboard["📊 Sentry Dashboard"]
 
     style User fill:#e1f5ff
     style Clerk fill:#ffd6e8
@@ -63,6 +78,7 @@ graph TB
     style InngestClient fill:#fff4cc
     style Firecrawl fill:#ffe8cc
     style AISDK fill:#e8f4ff
+    style SentryDashboard fill:#ffe4e4
 ```
 
 ## Luồng Authentication
@@ -202,6 +218,58 @@ flowchart TD
     style ReturnResponse fill:#d4f1d4
 ```
 
+## Luồng Error Monitoring với Sentry
+
+```mermaid
+flowchart TD
+    subgraph "Error Sources"
+        ClientError["🖥️ Client Error<br/>(Browser)"]
+        ServerError["⚙️ Server Error<br/>(API Routes)"]
+        InngestError["⚡ Inngest Error<br/>(Background Jobs)"]
+    end
+
+    subgraph "Sentry Capture"
+        SentryClient["🐛 Sentry Client<br/>(Browser SDK)"]
+        SentryServer["🐛 Sentry Server<br/>(Node SDK)"]
+        SentryMiddleware["🐛 Sentry Middleware<br/>(@inngest/middleware-sentry)"]
+    end
+
+    subgraph "Error Processing"
+        CaptureError["📦 Capture Error"]
+        AddContext["👤 Add User Context"]
+        AddBreadcrumbs["🍞 Add Breadcrumbs"]
+        SendToSentry["📤 Send to Sentry"]
+    end
+
+    subgraph "Sentry Dashboard"
+        Dashboard["📊 Sentry Dashboard"]
+        ErrorList["📋 Error List"]
+        StackTrace["🔍 Stack Trace"]
+        UserInfo["👤 User Info"]
+        Alerts["🔔 Alerts"]
+    end
+
+    ClientError --> SentryClient
+    ServerError --> SentryServer
+    InngestError --> SentryMiddleware
+
+    SentryClient & SentryServer & SentryMiddleware --> CaptureError
+    CaptureError --> AddContext
+    AddContext --> AddBreadcrumbs
+    AddBreadcrumbs --> SendToSentry
+
+    SendToSentry --> Dashboard
+    Dashboard --> ErrorList
+    Dashboard --> StackTrace
+    Dashboard --> UserInfo
+    Dashboard --> Alerts
+
+    style ClientError fill:#ffe4e4
+    style ServerError fill:#ffe4e4
+    style InngestError fill:#ffe4e4
+    style Dashboard fill:#d4f1d4
+```
+
 ## Database Schema
 
 ```mermaid
@@ -258,6 +326,7 @@ graph TB
 - **Background Jobs**: Inngest
 - **Web Scraping**: Firecrawl
 - **AI**: Vercel AI SDK + Google Gemini
+- **Error Monitoring**: Sentry
 - **Theme**: next-themes
 
 ### 📊 Database
@@ -274,4 +343,5 @@ graph TB
 - ✅ Web scraping (Firecrawl)
 - ✅ AI integration (Gemini)
 - ✅ Context-aware AI responses
+- ✅ Error monitoring (Sentry)
 - ✅ Dark mode support

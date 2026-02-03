@@ -11,6 +11,11 @@ export async function POST() {
   const response = await generateText({
     model: google(MODEL_AI),
     prompt: "Hello, how are you?",
+    experimental_telemetry: {
+      isEnabled: true,
+      recordInputs: true,
+      recordOutputs: true,
+    },
   });
 
   return new Response(response.text);
