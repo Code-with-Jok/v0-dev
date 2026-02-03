@@ -1,6 +1,6 @@
 import { inngest } from "@/inngest/client";
 import { serve } from "inngest/next";
-import { demoGenerated } from "./functions";
+import { demoGenerated } from "../../../inngest/functions";
 
 // Create an API that serves zero functions
 export const { GET, POST, PUT } = serve({

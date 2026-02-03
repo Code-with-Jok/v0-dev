@@ -36,6 +36,11 @@ graph TB
         Functions["⚡ Functions"]
     end
 
+    subgraph "Web Scraping - Firecrawl"
+        Firecrawl["🌐 Firecrawl API"]
+        URLExtract["🔗 URL Extraction"]
+    end
+
     subgraph "AI - Vercel AI SDK"
         AISDK["🤖 AI SDK"]
         Gemini["✨ Gemini"]
@@ -49,12 +54,14 @@ graph TB
     Mutations & Queries --> ConvexDB
 
     Pages --> InngestClient --> Functions
-    Functions --> AISDK --> Gemini
+    Functions --> URLExtract --> Firecrawl
+    Firecrawl --> AISDK --> Gemini
 
     style User fill:#e1f5ff
     style Clerk fill:#ffd6e8
     style ConvexDB fill:#d4f1d4
     style InngestClient fill:#fff4cc
+    style Firecrawl fill:#ffe8cc
     style AISDK fill:#e8f4ff
 ```
 
@@ -145,6 +152,56 @@ flowchart TD
     style ReturnResult fill:#d4f1d4
 ```
 
+## Luồng Web Scraping với Firecrawl
+
+```mermaid
+flowchart TD
+    Start["🚀 Event: 'demo/generated'<br/>data: { prompt }"]
+
+    subgraph "Step 1: Extract URLs"
+        ExtractURLs["🔗 extract-urls"]
+        Regex["📝 URL_REGEX.match()"]
+        URLArray["📦 Array of URLs"]
+    end
+
+    subgraph "Step 2: Scrape Content"
+        ScrapeStep["🌐 scrape-urls"]
+        ParallelScrape["⚡ Promise.all()"]
+        FirecrawlAPI["🔥 firecrawl.scrape()"]
+        GetMarkdown["📄 result.markdown"]
+        FilterJoin["🔀 Filter & Join"]
+    end
+
+    subgraph "Step 3: Build Context"
+        CheckContent{"📊 Has Content?"}
+        BuildContext["📝 Build Context Prompt"]
+        UseOriginal["📝 Use Original Prompt"]
+    end
+
+    subgraph "Step 4: AI Generation"
+        GenerateAI["🤖 generate-text"]
+        CallGemini["✨ Gemini API"]
+        ReturnResponse["📦 AI Response"]
+    end
+
+    Start --> ExtractURLs --> Regex --> URLArray
+    URLArray --> ScrapeStep --> ParallelScrape
+    ParallelScrape --> FirecrawlAPI --> GetMarkdown
+    GetMarkdown --> FilterJoin
+
+    FilterJoin --> CheckContent
+    CheckContent -->|"Has scraped content"| BuildContext
+    CheckContent -->|"No URLs found"| UseOriginal
+
+    BuildContext --> GenerateAI
+    UseOriginal --> GenerateAI
+    GenerateAI --> CallGemini --> ReturnResponse
+
+    style FirecrawlAPI fill:#ffe8cc
+    style CallGemini fill:#e8f4ff
+    style ReturnResponse fill:#d4f1d4
+```
+
 ## Database Schema
 
 ```mermaid
@@ -199,6 +256,7 @@ graph TB
 - **Auth**: Clerk + JWT
 - **Database**: Convex (Realtime)
 - **Background Jobs**: Inngest
+- **Web Scraping**: Firecrawl
 - **AI**: Vercel AI SDK + Google Gemini
 - **Theme**: next-themes
 
@@ -213,5 +271,7 @@ graph TB
 - ✅ Type-safe end-to-end
 - ✅ JWT authentication
 - ✅ Background processing (Inngest)
+- ✅ Web scraping (Firecrawl)
 - ✅ AI integration (Gemini)
+- ✅ Context-aware AI responses
 - ✅ Dark mode support
