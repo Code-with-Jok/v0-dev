@@ -61,7 +61,11 @@ Wizard tự động tạo:
 ```json
 {
   "dependencies": {
+<<<<<<< HEAD
     "@sentry/nextjs": "^9.x.x",
+=======
+    "@sentry/nextjs": "^10.38.0",
+>>>>>>> bbe52a7 (feat: Add Firecrawl for web scraping and Sentry for error monitoring and performance tracing.)
     "@inngest/middleware-sentry": "^0.1.3"
   }
 }
@@ -198,6 +202,20 @@ export const demoError = inngest.createFunction(
     });
   }
 );
+```
+
+**File: `src/app/api/inngest/route.ts`**
+
+```typescript
+import { inngest } from "@/inngest/client";
+import { serve } from "inngest/next";
+import { demoError, demoGenerated } from "../../../inngest/functions";
+
+// Create an API that serves zero functions
+export const { GET, POST, PUT } = serve({
+  client: inngest,
+  functions: [demoGenerated, demoError],
+});
 ```
 
 ## 5. Testing Error Monitoring
