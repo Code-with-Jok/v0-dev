@@ -114,17 +114,17 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    HomePage["🏠 Home Page"]
+    HomePage["🏠 Home Page (ProjectView)"]
 
-    UseQuery["🔍 useQuery(api.project.get)"]
+    UseQuery["🔍 useQuery(api.projects.get)"]
     CheckAuth1{"🔐 Check Identity"}
-    QueryDB["💾 Query by ownerId"]
-    RenderList["📋 Render Projects"]
+    QueryDB["💾 Query projects by ownerId"]
+    RenderList["📋 Render ProjectsList"]
 
-    CreateBtn["➕ Create Button"]
-    UseMutation["✏️ useMutation(api.project.create)"]
+    CreateBtn["➕ Create Button (Ctrl+J)"]
+    UseMutation["✏️ useMutation(api.projects.create)"]
     CheckAuth2{"🔐 Check Identity"}
-    InsertDB["💾 Insert to DB"]
+    InsertDB["💾 Insert to 'projects' table"]
 
     HomePage --> UseQuery
     UseQuery --> CheckAuth1
@@ -140,141 +140,11 @@ flowchart TD
     style Error fill:#ffe4e4
 ```
 
-## Luồng Background Jobs
-
-```mermaid
-flowchart TD
-    DemoPage["🖥️ Demo Page"]
-    ClickBtn["👆 Click Button"]
-    APIRoute["📡 POST /api/demo/background"]
-    SendEvent["📨 inngest.send('demo/generated')"]
-
-    InngestReceive["📥 Inngest Receive"]
-    TriggerFunction["⚡ Trigger Function"]
-    GenerateText["🤖 step.run('generate-text')"]
-    CallAI["🧠 AI SDK → Gemini"]
-    ReturnResult["📦 Return Result"]
-
-    Dashboard["📊 Dashboard (localhost:8288)"]
-
-    DemoPage --> ClickBtn --> APIRoute
-    APIRoute --> SendEvent
-    SendEvent --> InngestReceive --> TriggerFunction
-    TriggerFunction --> GenerateText --> CallAI --> ReturnResult
-    TriggerFunction --> Dashboard
-
-    style SendEvent fill:#fff4cc
-    style CallAI fill:#e8f4ff
-    style ReturnResult fill:#d4f1d4
-```
-
-## Luồng Web Scraping với Firecrawl
-
-```mermaid
-flowchart TD
-    Start["🚀 Event: 'demo/generated'<br/>data: { prompt }"]
-
-    subgraph "Step 1: Extract URLs"
-        ExtractURLs["🔗 extract-urls"]
-        Regex["📝 URL_REGEX.match()"]
-        URLArray["📦 Array of URLs"]
-    end
-
-    subgraph "Step 2: Scrape Content"
-        ScrapeStep["🌐 scrape-urls"]
-        ParallelScrape["⚡ Promise.all()"]
-        FirecrawlAPI["🔥 firecrawl.scrape()"]
-        GetMarkdown["📄 result.markdown"]
-        FilterJoin["🔀 Filter & Join"]
-    end
-
-    subgraph "Step 3: Build Context"
-        CheckContent{"📊 Has Content?"}
-        BuildContext["📝 Build Context Prompt"]
-        UseOriginal["📝 Use Original Prompt"]
-    end
-
-    subgraph "Step 4: AI Generation"
-        GenerateAI["🤖 generate-text"]
-        CallGemini["✨ Gemini API"]
-        ReturnResponse["📦 AI Response"]
-    end
-
-    Start --> ExtractURLs --> Regex --> URLArray
-    URLArray --> ScrapeStep --> ParallelScrape
-    ParallelScrape --> FirecrawlAPI --> GetMarkdown
-    GetMarkdown --> FilterJoin
-
-    FilterJoin --> CheckContent
-    CheckContent -->|"Has scraped content"| BuildContext
-    CheckContent -->|"No URLs found"| UseOriginal
-
-    BuildContext --> GenerateAI
-    UseOriginal --> GenerateAI
-    GenerateAI --> CallGemini --> ReturnResponse
-
-    style FirecrawlAPI fill:#ffe8cc
-    style CallGemini fill:#e8f4ff
-    style ReturnResponse fill:#d4f1d4
-```
-
-## Luồng Error Monitoring với Sentry
-
-```mermaid
-flowchart TD
-    subgraph "Error Sources"
-        ClientError["🖥️ Client Error<br/>(Browser)"]
-        ServerError["⚙️ Server Error<br/>(API Routes)"]
-        InngestError["⚡ Inngest Error<br/>(Background Jobs)"]
-    end
-
-    subgraph "Sentry Capture"
-        SentryClient["🐛 Sentry Client<br/>(Browser SDK)"]
-        SentryServer["🐛 Sentry Server<br/>(Node SDK)"]
-        SentryMiddleware["🐛 Sentry Middleware<br/>(@inngest/middleware-sentry)"]
-    end
-
-    subgraph "Error Processing"
-        CaptureError["📦 Capture Error"]
-        AddContext["👤 Add User Context"]
-        AddBreadcrumbs["🍞 Add Breadcrumbs"]
-        SendToSentry["📤 Send to Sentry"]
-    end
-
-    subgraph "Sentry Dashboard"
-        Dashboard["📊 Sentry Dashboard"]
-        ErrorList["📋 Error List"]
-        StackTrace["🔍 Stack Trace"]
-        UserInfo["👤 User Info"]
-        Alerts["🔔 Alerts"]
-    end
-
-    ClientError --> SentryClient
-    ServerError --> SentryServer
-    InngestError --> SentryMiddleware
-
-    SentryClient & SentryServer & SentryMiddleware --> CaptureError
-    CaptureError --> AddContext
-    AddContext --> AddBreadcrumbs
-    AddBreadcrumbs --> SendToSentry
-
-    SendToSentry --> Dashboard
-    Dashboard --> ErrorList
-    Dashboard --> StackTrace
-    Dashboard --> UserInfo
-    Dashboard --> Alerts
-
-    style ClientError fill:#ffe4e4
-    style ServerError fill:#ffe4e4
-    style InngestError fill:#ffe4e4
-    style Dashboard fill:#d4f1d4
-```
-
 ## Database Schema
 
 ```mermaid
 graph LR
-    ProjectTable["📊 Table: project"]
+    ProjectTable["📊 Table: projects"]
 
     Fields["Fields:<br/>• name: string<br/>• ownerId: string<br/>• importStatus?: union"]
 
@@ -315,7 +185,6 @@ graph TB
 1. **Authentication**: Clerk → JWT → Convex Auth
 2. **Data Fetching**: useQuery → Convex Query → Database
 3. **Data Mutation**: useMutation → Convex Mutation → Database
-4. **Background Jobs**: Event → Inngest → AI SDK → Result
 
 ### 🔑 Tech Stack
 
@@ -323,15 +192,11 @@ graph TB
 - **UI**: Radix UI + Tailwind CSS + shadcn/ui
 - **Auth**: Clerk + JWT
 - **Database**: Convex (Realtime)
-- **Background Jobs**: Inngest
-- **Web Scraping**: Firecrawl
-- **AI**: Vercel AI SDK + Google Gemini
-- **Error Monitoring**: Sentry
 - **Theme**: next-themes
 
 ### 📊 Database
 
-- **Table**: `project` với index `by_owner`
+- **Table**: `projects` với index `by_owner`
 - **Access**: Owner-based (mỗi user chỉ thấy projects của mình)
 
 ### ⚡ Features
@@ -339,9 +204,4 @@ graph TB
 - ✅ Real-time sync (Convex)
 - ✅ Type-safe end-to-end
 - ✅ JWT authentication
-- ✅ Background processing (Inngest)
-- ✅ Web scraping (Firecrawl)
-- ✅ AI integration (Gemini)
-- ✅ Context-aware AI responses
-- ✅ Error monitoring (Sentry)
 - ✅ Dark mode support
