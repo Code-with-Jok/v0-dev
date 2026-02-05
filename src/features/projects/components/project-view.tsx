@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
@@ -33,6 +35,11 @@ const ProjectView = () => {
   const createProject = useCreateProject();
   const [commandDialogOpen, setCommandDialogOpen] = useState(false);
 
+  const handleImport = () => {
+    // Placeholder for actual import logic
+    console.log("Import triggered");
+  };
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey) {
@@ -43,6 +50,10 @@ const ProjectView = () => {
         if (e.key === "j") {
           e.preventDefault();
           createProject({ name: generateProjectName() });
+        }
+        if (e.key.toLowerCase() === "i") {
+          e.preventDefault();
+          handleImport();
         }
       }
     };
@@ -100,7 +111,7 @@ const ProjectView = () => {
 
               <Button
                 variant="outline"
-                onClick={() => {}}
+                onClick={handleImport}
                 className="h-full items-start justify-start p-4 bg-background border flex flex-col gap-6 rounded-none"
               >
                 <div className="flex items-center justify-between w-full">
