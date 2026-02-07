@@ -40,6 +40,7 @@ export const TreeItemWrapper = ({
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <button
+          type="button"
           onClick={onClick}
           onDoubleClick={onDoubleClick}
           onKeyDown={(e) => {

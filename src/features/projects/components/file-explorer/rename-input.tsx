@@ -48,6 +48,7 @@ export const RenameInput = ({
         )}
       </div>
       <input
+        aria-label={`Rename ${type}`}
         autoFocus
         type="text"
         value={name}

@@ -63,8 +63,15 @@ const FileExplorer = ({ projectId }: FileExplorerProps) => {
       <ScrollArea>
         <div
           role="button"
+          tabIndex={0}
           onClick={() => setIsOpen((value) => !value)}
-          className="group/project cursor-pointer w-full text-left flex items-center gap-0.5 h-5.5 bg-accent font-bold"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setIsOpen((value) => !value);
+            }
+          }}
+          className="group/project cursor-pointer w-full text-left flex items-center gap-0.5 h-5.5 bg-accent font-bold outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-0"
         >
           <ChevronRightIcon
             className={cn(
@@ -76,7 +83,7 @@ const FileExplorer = ({ projectId }: FileExplorerProps) => {
             {project?.name ?? "Loading..."}
           </p>
 
-          <div className="opacity-0 group-hover/project:opacity-100 transition-none duration-0 flex items-center gap-0.5 ml-auto">
+          <div className="opacity-0 group-hover/project:opacity-100 group-focus-within/project:opacity-100 transition-none duration-0 flex items-center gap-0.5 ml-auto">
             <Button
               onClick={(e) => {
                 e.stopPropagation();

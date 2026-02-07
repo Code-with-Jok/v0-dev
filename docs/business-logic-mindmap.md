@@ -228,7 +228,7 @@ flowchart TD
     Fetch --> Render
     CheckData -->|Yes| Render
 
-    subgraph Recursive UI
+    subgraph RecursiveUI
         Tree["Tree Component"]
         Dispatcher{"Type?"}
         FileUI["📄 FileNode"]

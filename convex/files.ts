@@ -4,6 +4,14 @@ import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { verifyAuth } from "./auth";
 
+const normalizeName = (name: string) => {
+  const trimmed = name.trim();
+  if (!trimmed) {
+    throw new Error("Name cannot be empty");
+  }
+  return trimmed;
+};
+
 export const getFiles = query({
   args: { projectId: v.id("projects") },
   handler: async (ctx, args) => {
@@ -108,6 +116,21 @@ export const createFile = mutation({
       throw new Error("Unauthorized to access this project");
     }
 
+    const normalizedName = normalizeName(args.name);
+
+    if (args.parentId) {
+      const parent = await ctx.db.get("files", args.parentId);
+      if (!parent) {
+        throw new Error("Parent folder not found");
+      }
+      if (parent.type !== "folder") {
+        throw new Error("Parent is not a folder");
+      }
+      if (parent.projectId !== args.projectId) {
+        throw new Error("Parent belongs to a different project");
+      }
+    }
+
     // Check if file with same name already exists in this parent folder
     const files = await ctx.db
       .query("files")
@@ -117,7 +140,7 @@ export const createFile = mutation({
       .collect();
 
     const existing = files.find(
-      (file) => file.name === args.name && file.type === "file"
+      (file) => file.name === normalizedName && file.type === "file"
     );
 
     if (existing) throw new Error("File already exists");
@@ -126,7 +149,7 @@ export const createFile = mutation({
 
     await ctx.db.insert("files", {
       projectId: args.projectId,
-      name: args.name,
+      name: normalizedName,
       content: args.content,
       type: "file",
       parentId: args.parentId,
@@ -158,6 +181,21 @@ export const createFolder = mutation({
       throw new Error("Unauthorized to access this project");
     }
 
+    const normalizedName = normalizeName(args.name);
+
+    if (args.parentId) {
+      const parent = await ctx.db.get("files", args.parentId);
+      if (!parent) {
+        throw new Error("Parent folder not found");
+      }
+      if (parent.type !== "folder") {
+        throw new Error("Parent is not a folder");
+      }
+      if (parent.projectId !== args.projectId) {
+        throw new Error("Parent belongs to a different project");
+      }
+    }
+
     // Check if folder with same name already exists in this parent folder
     const files = await ctx.db
       .query("files")
@@ -167,7 +205,7 @@ export const createFolder = mutation({
       .collect();
 
     const existing = files.find(
-      (file) => file.name === args.name && file.type === "folder"
+      (file) => file.name === normalizedName && file.type === "folder"
     );
 
     if (existing) throw new Error("Folder already exists");
@@ -176,7 +214,7 @@ export const createFolder = mutation({
 
     await ctx.db.insert("files", {
       projectId: args.projectId,
-      name: args.name,
+      name: normalizedName,
       type: "folder",
       parentId: args.parentId,
       updatedAt: now,
@@ -210,6 +248,8 @@ export const renameFile = mutation({
       throw new Error("Unauthorized to access this project");
     }
 
+    const normalizedNewName = normalizeName(args.newName);
+
     // Check if a file with the new name already exists in the same parent folder
     const siblings = await ctx.db
       .query("files")
@@ -220,7 +260,7 @@ export const renameFile = mutation({
 
     const existing = siblings.find(
       (sibling) =>
-        sibling.name === args.newName &&
+        sibling.name === normalizedNewName &&
         sibling.type === file.type &&
         sibling._id !== args.id
     );
@@ -235,7 +275,7 @@ export const renameFile = mutation({
 
     // Update the file's name
     await ctx.db.patch("files", args.id, {
-      name: args.newName,
+      name: normalizedNewName,
       updatedAt: now,
     });
 
@@ -316,6 +356,10 @@ export const updateFile = mutation({
     const file = await ctx.db.get("files", args.id);
 
     if (!file) throw new Error("File not found");
+
+    if (file.type !== "file") {
+      throw new Error("Cannot update folder content");
+    }
 
     const project = await ctx.db.get("projects", file.projectId);
 

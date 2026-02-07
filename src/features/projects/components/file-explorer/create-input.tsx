@@ -2,7 +2,7 @@
 
 import { FileIcon, FolderIcon } from "@react-symbols/icons/utils";
 import { ChevronRightIcon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getItemPadding } from "./constants";
 
 interface CreateInputProps {
@@ -14,8 +14,12 @@ interface CreateInputProps {
 
 const CreateInput = ({ type, level, onSubmit, onCancel }: CreateInputProps) => {
   const [name, setName] = useState("");
+  const submittedRef = useRef(false);
 
   const handleSubmit = () => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+
     const trimmedName = name.trim();
     if (trimmedName) {
       onSubmit(trimmedName);
@@ -50,9 +54,12 @@ const CreateInput = ({ type, level, onSubmit, onCancel }: CreateInputProps) => {
         onBlur={handleSubmit}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
+            e.preventDefault();
             handleSubmit();
           }
           if (e.key === "Escape") {
+            e.preventDefault();
+            submittedRef.current = true; // Prevent blur from firing cancel again potentially
             onCancel();
           }
         }}
