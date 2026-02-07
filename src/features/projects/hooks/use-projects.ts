@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
 import { Id } from "../../../../convex/_generated/dataModel";
@@ -16,7 +17,6 @@ export const useCreateProject = () => {
       const existingProjects = localStore.getQuery(api.projects.get);
 
       if (existingProjects !== undefined) {
-        // eslint-disable-next-line react-hooks/purity
         const now = Date.now();
         const newProject = {
           _id: crypto.randomUUID() as Id<"projects">,
@@ -30,6 +30,53 @@ export const useCreateProject = () => {
           newProject,
           ...existingProjects,
         ]);
+      }
+    }
+  );
+};
+
+export const useProjectById = (projectId: Id<"projects">) => {
+  return useQuery(api.projects.getById, { id: projectId });
+};
+
+export const useRenameProject = (projectId: Id<"projects">) => {
+  return useMutation(api.projects.rename).withOptimisticUpdate(
+    (localStore, args) => {
+      const existingProject = localStore.getQuery(api.projects.getById, {
+        id: projectId,
+      });
+
+      if (existingProject !== undefined && existingProject !== null) {
+        localStore.setQuery(
+          api.projects.getById,
+          {
+            id: projectId,
+          },
+          {
+            ...existingProject,
+            name: args.name,
+            updatedAt: Date.now(),
+          }
+        );
+      }
+
+      const existingProjects = localStore.getQuery(api.projects.get);
+
+      if (existingProjects !== undefined) {
+        localStore.setQuery(
+          api.projects.get,
+          {},
+          existingProjects.map((project) => {
+            if (project._id === projectId) {
+              return {
+                ...project,
+                name: args.name,
+                updatedAt: Date.now(),
+              };
+            }
+            return project;
+          })
+        );
       }
     }
   );
