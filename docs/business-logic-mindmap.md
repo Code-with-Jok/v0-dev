@@ -211,6 +211,41 @@ graph TB
     style ConvexProvider fill:#e1f5ff
 ```
 
+## Luồng Quản Lý File (File Explorer)
+
+```mermaid
+flowchart TD
+    UserClick["👤 User Click Folder"]
+    Toggle["🔄 Toggle isOpen"]
+
+    CheckData{"💾 Has Data?"}
+    Fetch["☁️ useQuery(api.files.getFolderContents)"]
+    Render["🌳 Render Children"]
+
+    UserClick --> Toggle
+    Toggle -->|True| CheckData
+    CheckData -->|No| Fetch
+    Fetch --> Render
+    CheckData -->|Yes| Render
+
+    subgraph Recursive UI
+        Tree["Tree Component"]
+        Dispatcher{"Type?"}
+        FileUI["📄 FileNode"]
+        FolderUI["📂 FolderNode"]
+
+        Tree --> Dispatcher
+        Dispatcher -->|"File"| FileUI
+        Dispatcher -->|"Folder"| FolderUI
+        FolderUI -.->|"Children"| Tree
+    end
+
+    Render --> RecursiveUI
+
+    style Fetch fill:#e1f5ff
+    style FolderUI fill:#fff4cc
+```
+
 ## Tóm tắt
 
 ### 🎯 Các Luồng Chính
