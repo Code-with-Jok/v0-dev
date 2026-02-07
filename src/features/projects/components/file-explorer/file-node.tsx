@@ -1,6 +1,5 @@
 import { FileIcon } from "@react-symbols/icons/utils";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Doc } from "../../../../../convex/_generated/dataModel";
 import { useDeleteFile, useRenameFile } from "../../hooks/use-files";
 import { RenameInput } from "./rename-input";
@@ -23,17 +22,7 @@ export const FileNode = ({ item, level }: FileNodeProps) => {
   };
 
   const handleDelete = () => {
-    toast("Delete file?", {
-      description: "This action cannot be undone.",
-      action: {
-        label: "Delete",
-        onClick: () => deleteFile({ id: item._id }),
-      },
-      cancel: {
-        label: "Cancel",
-        onClick: () => {},
-      },
-    });
+    deleteFile({ id: item._id });
   };
 
   if (isRenaming) {

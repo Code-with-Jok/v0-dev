@@ -49,7 +49,6 @@ export const FolderNode = ({ item, level, projectId }: FolderNodeProps) => {
   };
 
   const handleDelete = () => {
-    // TODO: Confirm delete
     deleteFile({ id: item._id });
   };
 

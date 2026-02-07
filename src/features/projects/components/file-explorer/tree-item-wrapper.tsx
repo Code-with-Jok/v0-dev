@@ -41,12 +41,19 @@ export const TreeItemWrapper = ({
       <ContextMenuTrigger asChild>
         <button
           type="button"
-          onClick={onClick}
+          onClick={(e) => {
+            e.currentTarget.focus();
+            onClick?.();
+          }}
           onDoubleClick={onDoubleClick}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
               onRename?.();
+            }
+            if (e.key === "Delete") {
+              e.preventDefault();
+              onDelete?.();
             }
           }}
           className={cn(
