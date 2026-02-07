@@ -140,6 +140,39 @@ flowchart TD
     style Error fill:#ffe4e4
 ```
 
+## Luồng Chi Tiết Project (Project Detail)
+
+```mermaid
+flowchart TD
+    DetailPage["📄 Page /projects/:id"]
+    GetData["🔍 useQuery(api.projects.getById)"]
+
+    subgraph UI [Layout & Components]
+        Navbar["🧭 Navbar"]
+        Sidebar["💬 Conversation Sidebar"]
+        MainView["🖥️ Editor/Preview Tabs"]
+    end
+
+    subgraph Components [Navbar Components]
+        Renamer["📝 ProjectTitleRenamer"]
+        Status["☁️ ProjectSaveStatus"]
+    end
+
+    UserAction["👤 User Rename"]
+    Optimistic["⚡ Optimistic Update"]
+    ServerMutation["✏️ Mutation(api.projects.rename)"]
+
+    DetailPage --> GetData --> UI
+
+    Navbar --> Renamer & Status
+    Renamer --> UserAction
+    UserAction --> Optimistic --> Renamer
+    Optimistic -.-> ServerMutation
+
+    style Optimistic fill:#fff4cc
+    style ServerMutation fill:#ffd6e8
+```
+
 ## Database Schema
 
 ```mermaid

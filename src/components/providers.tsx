@@ -2,7 +2,7 @@
 
 import AuthLoadingView from "@/features/auth/components/auth-loading-view";
 import UnanthenticatedView from "@/features/auth/components/unanthenticated-view";
-import { ClerkProvider, useAuth, UserButton } from "@clerk/nextjs";
+import { ClerkProvider, useAuth } from "@clerk/nextjs";
 import {
   Authenticated,
   AuthLoading,
@@ -29,10 +29,7 @@ export const Providers = ({ children }: { children: ReactNode }) => {
           enableSystem
           disableTransitionOnChange
         >
-          <Authenticated>
-            <UserButton />
-            {children}
-          </Authenticated>
+          <Authenticated>{children}</Authenticated>
           <Unauthenticated>
             <UnanthenticatedView />
           </Unauthenticated>
