@@ -1,3 +1,5 @@
+"use client";
+
 import { BreadcrumbItem, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { useState } from "react";
 import { Id } from "../../../../convex/_generated/dataModel";

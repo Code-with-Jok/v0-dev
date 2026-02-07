@@ -85,8 +85,14 @@ export const rename = mutation({
       throw new Error("Unauthorized access to this project");
     }
 
+    const trimmedName = args.name.trim();
+
+    if (!trimmedName) {
+      throw new Error("project name cannot be empty");
+    }
+
     return await ctx.db.patch(args.id, {
-      name: args.name,
+      name: trimmedName,
       updatedAt: Date.now(),
     });
   },
