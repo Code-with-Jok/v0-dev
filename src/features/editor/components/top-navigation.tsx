@@ -46,6 +46,8 @@ const Tab = ({ fileId, isFirst, projectId }: TabProps) => {
         {fileName}
       </span>
       <button
+        type="button"
+        aria-label={`Close ${fileName}`}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

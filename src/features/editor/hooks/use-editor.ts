@@ -4,32 +4,44 @@ import { Id } from "../../../../convex/_generated/dataModel";
 import { useEditorStore } from "../store/use-editor-store";
 
 export const useEditor = (projectId: Id<"projects">) => {
-  const store = useEditorStore();
+  // Select stable action functions individually
+  const storeOpenFile = useEditorStore((state) => state.openFile);
+  const storeCloseTab = useEditorStore((state) => state.closeTab);
+  const storeCloseAllTabs = useEditorStore((state) => state.closeAllTabs);
+  const storeSetActiveTab = useEditorStore((state) => state.setActiveTab);
+  const storeCloseTabsForIds = useEditorStore((state) => state.closeTabsForIds);
   const tabState = useEditorStore((state) => state.getTabState(projectId));
 
   const openFile = useCallback(
     (fileId: Id<"files">, options: { pinned: boolean }) => {
-      store.openFile(projectId, fileId, options);
+      storeOpenFile(projectId, fileId, options);
     },
-    [store, projectId]
+    [storeOpenFile, projectId]
   );
 
   const closeTab = useCallback(
     (fileId: Id<"files">) => {
-      store.closeTab(projectId, fileId);
+      storeCloseTab(projectId, fileId);
     },
-    [store, projectId]
+    [storeCloseTab, projectId]
   );
 
   const closeAllTabs = useCallback(() => {
-    store.closeAllTabs(projectId);
-  }, [store, projectId]);
+    storeCloseAllTabs(projectId);
+  }, [storeCloseAllTabs, projectId]);
 
   const setActiveTab = useCallback(
     (fileId: Id<"files">) => {
-      store.setActiveTab(projectId, fileId);
+      storeSetActiveTab(projectId, fileId);
     },
-    [store, projectId]
+    [storeSetActiveTab, projectId]
+  );
+
+  const closeTabsForIds = useCallback(
+    (fileIds: Id<"files">[]) => {
+      storeCloseTabsForIds(projectId, fileIds);
+    },
+    [storeCloseTabsForIds, projectId]
   );
 
   return {
@@ -40,5 +52,6 @@ export const useEditor = (projectId: Id<"projects">) => {
     closeTab,
     closeAllTabs,
     setActiveTab,
+    closeTabsForIds,
   };
 };

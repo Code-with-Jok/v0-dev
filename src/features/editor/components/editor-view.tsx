@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 import { useFile, useUpdateFile } from "@/features/projects/hooks/use-files";
 
@@ -18,6 +18,16 @@ export const EditorView = ({ projectId }: { projectId: Id<"projects"> }) => {
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isActiveFileBinary = activeFile && activeFile.storageId;
   const isActiveFileText = activeFile && !activeFile.storageId;
+
+  // Clear pending debounce when file changes or component unmounts
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, [activeTabId]);
 
   return (
     <div className="h-full flex flex-col">

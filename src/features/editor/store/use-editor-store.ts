@@ -23,6 +23,7 @@ interface EditorStore {
     options: { pinned: boolean }
   ) => void;
   closeTab: (projectId: Id<"projects">, fileId: Id<"files">) => void;
+  closeTabsForIds: (projectId: Id<"projects">, fileIds: Id<"files">[]) => void;
   closeAllTabs: (projectId: Id<"projects">) => void;
   setActiveTab: (projectId: Id<"projects">, fileId: Id<"files">) => void;
 }
@@ -101,6 +102,30 @@ export const useEditorStore = create<EditorStore>()((set, get) => ({
       openTabs: newTabs,
       activeTabId: newActiveTabId,
       previewTabId: previewTabId === fileId ? null : previewTabId,
+    });
+    set({ tabs });
+  },
+
+  closeTabsForIds: (projectId, fileIds) => {
+    if (fileIds.length === 0) return;
+
+    const tabs = new Map(get().tabs);
+    const state = tabs.get(projectId) ?? defaultTabState;
+    const { openTabs, activeTabId, previewTabId } = state;
+    const idsToClose = new Set(fileIds);
+
+    const newTabs = openTabs.filter((id) => !idsToClose.has(id));
+
+    let newActiveTabId = activeTabId;
+    if (activeTabId && idsToClose.has(activeTabId)) {
+      newActiveTabId = newTabs.length > 0 ? newTabs[0] : null;
+    }
+
+    tabs.set(projectId, {
+      openTabs: newTabs,
+      activeTabId: newActiveTabId,
+      previewTabId:
+        previewTabId && idsToClose.has(previewTabId) ? null : previewTabId,
     });
     set({ tabs });
   },

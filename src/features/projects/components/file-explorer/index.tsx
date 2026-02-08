@@ -142,6 +142,7 @@ const FileExplorer = ({ projectId }: FileExplorerProps) => {
             item={item}
             level={0}
             projectId={projectId}
+            defaultOpen={collapseKey === 0}
           />
         ))}
       </ScrollArea>
