@@ -12,6 +12,7 @@ import {
   useRenameFile,
 } from "@/features/projects/hooks/use-files";
 
+import { useEditor } from "@/features/editor/hooks/use-editor";
 import { Doc, Id } from "../../../../../convex/_generated/dataModel";
 import { getItemPadding } from "./constants";
 import CreateInput from "./create-input";
@@ -24,12 +25,20 @@ interface FolderNodeProps {
   item: Doc<"files">;
   level: number;
   projectId: Id<"projects">;
+  defaultOpen?: boolean;
 }
 
-export const FolderNode = ({ item, level, projectId }: FolderNodeProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const FolderNode = ({
+  item,
+  level,
+  projectId,
+  defaultOpen = true,
+}: FolderNodeProps) => {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const [isRenaming, setIsRenaming] = useState(false);
   const [creating, setCreating] = useState<"file" | "folder" | null>(null);
+
+  const { closeTabsForIds } = useEditor(projectId);
 
   const renameFile = useRenameFile();
   const deleteFile = useDeleteFile();
@@ -49,6 +58,24 @@ export const FolderNode = ({ item, level, projectId }: FolderNodeProps) => {
   };
 
   const handleDelete = () => {
+    const collectDescendantIds = (
+      contents: Doc<"files">[] | undefined
+    ): Id<"files">[] => {
+      if (!contents) return [];
+      return contents.flatMap((subItem) => {
+        if (subItem.type === "folder") {
+          return [subItem._id];
+        }
+        return [subItem._id];
+      });
+    };
+
+    const descendantIds = folderContents
+      ? collectDescendantIds(folderContents)
+      : [];
+    const allIdsToClose = [item._id, ...descendantIds];
+
+    closeTabsForIds(allIdsToClose);
     deleteFile({ id: item._id });
   };
 

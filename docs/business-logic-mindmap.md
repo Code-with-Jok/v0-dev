@@ -246,6 +246,45 @@ flowchart TD
     style FolderUI fill:#fff4cc
 ```
 
+## Luồng Code Editor (Tab & Autosave)
+
+```mermaid
+flowchart TD
+    subgraph FileExplorer
+        Click["👆 Click File"]
+        DblClick["👆👆 Double-Click File"]
+    end
+
+    subgraph ZustandStore["Zustand Store"]
+        OpenFile["openFile(fileId, pinned)"]
+        TabState["TabState: openTabs, activeTabId, previewTabId"]
+    end
+
+    subgraph EditorUI
+        TopNav["TopNavigation (Tabs)"]
+        CodeEditor["CodeEditor"]
+        Autosave{"Debounce 1.5s"}
+    end
+
+    subgraph Backend
+        GetFile["useFile(activeTabId)"]
+        UpdateFile["updateFile(id, content)"]
+    end
+
+    Click -->|"pinned: false"| OpenFile
+    DblClick -->|"pinned: true"| OpenFile
+    OpenFile --> TabState
+    TabState --> TopNav
+    TabState --> GetFile
+    GetFile --> CodeEditor
+    CodeEditor -->|"onChange"| Autosave
+    Autosave -->|"Sau 1.5s"| UpdateFile
+
+    style OpenFile fill:#e1f5ff
+    style Autosave fill:#fff4cc
+    style UpdateFile fill:#d4edda
+```
+
 ## Tóm tắt
 
 ### 🎯 Các Luồng Chính
