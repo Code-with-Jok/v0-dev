@@ -13,7 +13,7 @@ export const ProjectTitleRenamer = ({
   projectId,
 }: ProjectTitleRenamerProps) => {
   const project = useProjectById(projectId);
-  const renameProject = useRenameProject(projectId);
+  const renameProject = useRenameProject();
 
   const [isRenaming, setIsRenaming] = useState(false);
   const [name, setName] = useState("");
