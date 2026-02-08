@@ -12,6 +12,7 @@ import {
   useRenameFile,
 } from "@/features/projects/hooks/use-files";
 
+import { useEditor } from "@/features/editor/hooks/use-editor";
 import { Doc, Id } from "../../../../../convex/_generated/dataModel";
 import { getItemPadding } from "./constants";
 import CreateInput from "./create-input";
@@ -31,6 +32,8 @@ export const FolderNode = ({ item, level, projectId }: FolderNodeProps) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [creating, setCreating] = useState<"file" | "folder" | null>(null);
 
+  const { closeTab } = useEditor(projectId);
+
   const renameFile = useRenameFile();
   const deleteFile = useDeleteFile();
   const createFile = useCreateFile();
@@ -49,6 +52,7 @@ export const FolderNode = ({ item, level, projectId }: FolderNodeProps) => {
   };
 
   const handleDelete = () => {
+    closeTab(item._id);
     deleteFile({ id: item._id });
   };
 

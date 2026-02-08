@@ -1,5 +1,6 @@
 "use client";
 
+import { EditorView } from "@/features/editor/components/editor-view";
 import { cn } from "@/lib/utils";
 import { Allotment } from "allotment";
 import { useState } from "react";
@@ -85,7 +86,7 @@ const ProjectIdView = ({ projectId }: ProjectIdViewProps) => {
               <FileExplorer projectId={projectId} />
             </Allotment.Pane>
             <Allotment.Pane>
-              <p>Editor view</p>
+              <EditorView projectId={projectId} />
             </Allotment.Pane>
           </Allotment>
         </div>

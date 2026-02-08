@@ -1,3 +1,4 @@
+import { useEditor } from "@/features/editor/hooks/use-editor";
 import { FileIcon } from "@react-symbols/icons/utils";
 import { useState } from "react";
 import { Doc } from "../../../../../convex/_generated/dataModel";
@@ -11,6 +12,8 @@ interface FileNodeProps {
 }
 
 export const FileNode = ({ item, level }: FileNodeProps) => {
+  const { openFile, closeTab, activeTabId } = useEditor(item.projectId);
+
   const [isRenaming, setIsRenaming] = useState(false);
   const renameFile = useRenameFile();
   const deleteFile = useDeleteFile();
@@ -22,6 +25,7 @@ export const FileNode = ({ item, level }: FileNodeProps) => {
   };
 
   const handleDelete = () => {
+    closeTab(item._id);
     deleteFile({ id: item._id });
   };
 
@@ -41,11 +45,9 @@ export const FileNode = ({ item, level }: FileNodeProps) => {
     <TreeItemWrapper
       item={item}
       level={level}
-      isActive={false} // TODO: Implement active state based on router/context
-      onClick={() => {
-        // TODO: Open file
-      }}
-      onDoubleClick={() => {}}
+      isActive={activeTabId === item._id}
+      onClick={() => openFile(item._id, { pinned: false })}
+      onDoubleClick={() => openFile(item._id, { pinned: true })}
       onRename={() => setIsRenaming(true)}
       onDelete={handleDelete}
     >
