@@ -7,6 +7,7 @@ import { indentationMarkers } from "@replit/codemirror-indentation-markers";
 import { customSetup } from "../extensions/custom-setup";
 import { getLanguageExtension } from "../extensions/language-extension";
 import { minimap } from "../extensions/minimap";
+import { suggestion } from "../extensions/suggestion";
 import { customTheme } from "../extensions/theme";
 
 interface CodeEditorProps {
@@ -38,6 +39,7 @@ export const CodeEditor = ({
         customTheme,
         customSetup,
         languageExtension,
+        suggestion(fileName),
         keymap.of([indentWithTab]),
         minimap(),
         indentationMarkers(),

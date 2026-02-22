@@ -47,6 +47,11 @@ graph TB
         AITelemetry["📊 AI Telemetry"]
     end
 
+    subgraph "AI Suggestion - Code Completion"
+        SuggestionAPI["💡 Suggestion API"]
+        SuggestionExt["✨ CodeMirror Extension"]
+    end
+
     subgraph "Error Monitoring - Sentry"
         SentryClient["🐛 Sentry Client"]
         SentryServer["🐛 Sentry Server"]
@@ -65,6 +70,9 @@ graph TB
     Functions --> URLExtract --> Firecrawl
     Firecrawl --> AISDK --> Gemini
     AISDK --> AITelemetry
+
+    SuggestionExt -->|"POST /api/suggestion"| SuggestionAPI
+    SuggestionAPI --> Gemini
 
     Pages --> SentryClient
     Mutations & Queries --> SentryServer
@@ -285,6 +293,44 @@ flowchart TD
     style UpdateFile fill:#d4edda
 ```
 
+## Luồng AI Suggestion (Gợi Ý Code Tự Động)
+
+```mermaid
+flowchart TD
+    subgraph Client["🖥️ Browser"]
+        Type["⌨️ User gõ code"]
+        Debounce["⏱️ Debounce 300ms"]
+        Payload["📦 Tạo context payload"]
+        Fetch["🌐 Gọi API (ky)"]
+        State["💾 Lưu suggestion vào State"]
+        Render["👻 Hiển thị ghost text"]
+        Accept{"Tab pressed?"}
+        Insert["✅ Chèn suggestion"]
+    end
+
+    subgraph Server["⚙️ API Route"]
+        Validate["🔍 Zod Validate"]
+        BuildPrompt["📝 Build Prompt"]
+        AICall["🤖 Gemini AI"]
+    end
+
+    Type --> Debounce
+    Debounce -->|"Ngừng gõ 300ms"| Payload
+    Payload --> Fetch
+    Fetch -->|"POST /api/suggestion"| Validate
+    Validate --> BuildPrompt --> AICall
+    AICall -->|"suggestion text"| Fetch
+    Fetch --> State --> Render
+    Render --> Accept
+    Accept -->|"Yes"| Insert
+    Accept -->|"No"| Type
+
+    style Debounce fill:#fff4cc
+    style AICall fill:#e8f4ff
+    style Insert fill:#d4f1d4
+    style Render fill:#ffd6e8
+```
+
 ## Tóm tắt
 
 ### 🎯 Các Luồng Chính
@@ -312,3 +358,4 @@ flowchart TD
 - ✅ Type-safe end-to-end
 - ✅ JWT authentication
 - ✅ Dark mode support
+- ✅ AI Code Suggestion (Gemini + CodeMirror Extension)
