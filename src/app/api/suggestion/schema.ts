@@ -16,7 +16,7 @@ export const suggestionRequestSchema = z.object({
   textBeforeV0dev: z.string(),
   textAfterV0dev: z.string(),
   nextLines: z.string(),
-  lineNumber: z.number(),
+  lineNumber: z.number().int().positive(),
 });
 
 export const suggestionResponseSchema = z.object({

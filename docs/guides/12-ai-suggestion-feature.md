@@ -59,7 +59,7 @@ flowchart TD
 
 ## Cấu Trúc Thư Mục
 
-```
+```text
 src/
 ├── app/api/suggestion/          # Server-side
 │   ├── route.ts                 # API endpoint (POST)
@@ -324,7 +324,7 @@ const suggestionState = StateField.define<string | null>({
 
 **Ví dụ trực quan:**
 
-```
+```text
 Bạn gõ "cons" → debounce chờ 300ms → AI trả về "t myVar = 42;"
 → dispatch setSuggestionEffect.of("t myVar = 42;")
 → suggestionState cập nhật thành "t myVar = 42;"
@@ -337,7 +337,7 @@ Bạn gõ "cons" → debounce chờ 300ms → AI trả về "t myVar = 42;"
 
 Hàm `generatePayload()` trích xuất thông tin từ editor:
 
-```
+```text
 Dòng 1: import React from 'react';
 Dòng 2:
 Dòng 3: const App = () => {
@@ -365,7 +365,7 @@ Dòng 7: };
 
 ### 4. `debounce-plugin.ts` — Debounce + Fetch
 
-```
+```text
 Bạn gõ "c" → timer bắt đầu (300ms)
 Bạn gõ "o" → timer reset (300ms mới)
 Bạn gõ "n" → timer reset (300ms mới)
@@ -391,7 +391,7 @@ Khi `suggestionState` có giá trị (không null):
 
 ### 6. `accept-keymap.ts` — Nhấn Tab để chấp nhận
 
-```
+```text
 Trước khi nhấn Tab:
   const myVar = |42;        ← v0dev (|), ghost text "42;"
 

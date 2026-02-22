@@ -38,24 +38,20 @@ Follow these steps IN ORDER:
 Your suggestion is inserted immediately after the v0dev, so never suggest code that's already in the file.
 </instructions>`;
 
-interface PromptParams {
-  fileName: string;
-  code: string;
-  currentLine: string;
-  previousLines: string;
-  textBeforeV0dev: string;
-  textAfterV0dev: string;
-  nextLines: string;
-  lineNumber: number;
-}
-
 export const buildSuggestionPrompt = (params: SuggestionRequest): string => {
-  return SUGGESTION_TEMPLATE.replace("{fileName}", params.fileName)
-    .replace("{code}", params.code)
-    .replace("{currentLine}", params.currentLine)
-    .replace("{previousLines}", params.previousLines || "")
-    .replace("{textBeforeV0dev}", params.textBeforeV0dev)
-    .replace("{textAfterV0dev}", params.textAfterV0dev)
-    .replace("{nextLines}", params.nextLines || "")
-    .replace("{lineNumber}", params.lineNumber.toString());
+  const replacements: Record<string, string> = {
+    fileName: params.fileName,
+    code: params.code,
+    currentLine: params.currentLine,
+    previousLines: params.previousLines || "",
+    textBeforeV0dev: params.textBeforeV0dev,
+    textAfterV0dev: params.textAfterV0dev,
+    nextLines: params.nextLines || "",
+    lineNumber: params.lineNumber.toString(),
+  };
+
+  return SUGGESTION_TEMPLATE.replace(
+    /\{(fileName|code|currentLine|previousLines|textBeforeV0dev|textAfterV0dev|nextLines|lineNumber)\}/g,
+    (_, key: string) => replacements[key] ?? ""
+  );
 };

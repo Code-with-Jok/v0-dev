@@ -50,7 +50,7 @@ const createQuickEditTooltip = (
         input.type = "text";
         input.placeholder = "Edit selected code";
         input.className =
-          "bg-transparent border-none outline-none px-2 py-1 font-sans w-100";
+          "bg-transparent border-none outline-none px-2 py-1 font-sans w-full";
         input.autofocus = true;
 
         const buttonContainer = document.createElement("div");
@@ -97,27 +97,32 @@ const createQuickEditTooltip = (
           submitButton.textContent = "Editing...";
 
           currentAbortController = new AbortController();
-          const editedCode = await fetcher(
-            { selectedCode, fullCode, instruction },
-            currentAbortController.signal
-          );
+          try {
+            const editedCode = await fetcher(
+              { selectedCode, fullCode, instruction },
+              currentAbortController.signal
+            );
 
-          if (editedCode) {
-            view.dispatch({
-              changes: {
-                from: sel.from,
-                to: sel.to,
-                insert: editedCode,
-              },
-              selection: { anchor: sel.from + editedCode.length },
-              effects: showQuickEditEffect.of(false),
-            });
-          } else {
+            if (editedCode) {
+              view.dispatch({
+                changes: {
+                  from: sel.from,
+                  to: sel.to,
+                  insert: editedCode,
+                },
+                selection: { anchor: sel.from + editedCode.length },
+                effects: showQuickEditEffect.of(false),
+              });
+            } else {
+              submitButton.disabled = false;
+              submitButton.textContent = "Submit";
+            }
+          } catch {
             submitButton.disabled = false;
             submitButton.textContent = "Submit";
+          } finally {
+            currentAbortController = null;
           }
-
-          currentAbortController = null;
         };
 
         buttonContainer.appendChild(cancelButton);
@@ -132,7 +137,15 @@ const createQuickEditTooltip = (
           input.focus();
         }, 0);
 
-        return { dom };
+        return {
+          dom,
+          destroy() {
+            if (currentAbortController) {
+              currentAbortController.abort();
+              currentAbortController = null;
+            }
+          },
+        };
       },
     },
   ];

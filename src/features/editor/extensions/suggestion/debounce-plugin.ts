@@ -27,6 +27,7 @@ export const createDebouncePlugin = (fileName: string) => {
     class {
       private debounceTimer: number | null = null;
       private abortController: AbortController | null = null;
+      private disposed = false;
       isWaitingForSuggestion = false;
 
       constructor(view: EditorView) {
@@ -48,9 +49,19 @@ export const createDebouncePlugin = (fileName: string) => {
           this.abortController.abort();
         }
 
+        // Clear stale ghost text — deferred via queueMicrotask because
+        // view.dispatch is not allowed during a CodeMirror update transaction
+        queueMicrotask(() => {
+          if (!this.disposed) {
+            view.dispatch({ effects: setSuggestionEffect.of(null) });
+          }
+        });
+
         this.isWaitingForSuggestion = true;
 
         this.debounceTimer = window.setTimeout(async () => {
+          if (this.disposed) return;
+
           const payload = generatePayload(view, fileName);
           if (!payload) {
             this.isWaitingForSuggestion = false;
@@ -64,6 +75,8 @@ export const createDebouncePlugin = (fileName: string) => {
             this.abortController.signal
           );
 
+          if (this.disposed) return;
+
           this.isWaitingForSuggestion = false;
           view.dispatch({
             effects: setSuggestionEffect.of(suggestion),
@@ -72,6 +85,8 @@ export const createDebouncePlugin = (fileName: string) => {
       }
 
       destroy() {
+        this.disposed = true;
+
         if (this.debounceTimer !== null) {
           clearTimeout(this.debounceTimer);
         }

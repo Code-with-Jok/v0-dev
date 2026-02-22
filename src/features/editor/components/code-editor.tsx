@@ -1,6 +1,6 @@
 import { oneDark } from "@codemirror/theme-one-dark";
 import { EditorView, keymap } from "@codemirror/view";
-import { useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { indentWithTab } from "@codemirror/commands";
 import { indentationMarkers } from "@replit/codemirror-indentation-markers";
@@ -25,10 +25,20 @@ export const CodeEditor = ({
 }: CodeEditorProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
+  const onChangeRef = useRef(onChange);
+
+  // Keep the ref up to date without triggering editor recreation
+  useEffect(() => {
+    onChangeRef.current = onChange;
+  }, [onChange]);
 
   const languageExtension = useMemo(() => {
     return getLanguageExtension(fileName);
   }, [fileName]);
+
+  const stableOnChange = useCallback((value: string) => {
+    onChangeRef.current(value);
+  }, []);
 
   useEffect(() => {
     if (!editorRef.current) return;
@@ -49,7 +59,7 @@ export const CodeEditor = ({
         indentationMarkers(),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
-            onChange(update.state.doc.toString());
+            stableOnChange(update.state.doc.toString());
           }
         }),
       ],
@@ -60,7 +70,7 @@ export const CodeEditor = ({
     return () => {
       view.destroy();
     };
-  }, [languageExtension, initialValue, onChange]);
+  }, [languageExtension, initialValue, stableOnChange, fileName]);
 
   return <div ref={editorRef} className="size-full pl-4 bg-background" />;
 };

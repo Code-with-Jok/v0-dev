@@ -5,13 +5,14 @@
  * Mỗi thành phần có Single Responsibility riêng:
  * - state.ts    → Quản lý trạng thái bật/tắt
  * - tooltip.ts  → Tạo form UI (DOM)
- * - keymap.ts   → Phím tắt `i`
+ * - keymap.ts   → Phím tắt `Mod-i`
  * - fetcher.ts  → Gọi API quick edit
  *
  * Exports `quickEditState` và `showQuickEditEffect`
  * cho selection-tooltip.ts sử dụng.
  */
 
+import { Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 
 import { quickEditKeymap } from "./keymap";
@@ -27,7 +28,7 @@ export { quickEditState, showQuickEditEffect };
  * Sử dụng closure để capture editorView reference,
  * tránh module-level mutable state.
  */
-export const quickEdit = () => {
+export const quickEdit = (): Extension[] => {
   let capturedView: EditorView | null = null;
   const getView = () => capturedView;
 

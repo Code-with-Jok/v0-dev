@@ -36,7 +36,8 @@ export const scrapeUrlsFromInstruction = async (
         }
 
         return null;
-      } catch {
+      } catch (err) {
+        console.warn(`Failed to scrape URL: ${url}`, err);
         return null;
       }
     })

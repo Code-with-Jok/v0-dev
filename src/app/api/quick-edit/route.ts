@@ -12,21 +12,47 @@ import { google } from "@ai-sdk/google";
 import { auth } from "@clerk/nextjs/server";
 import { generateText, Output } from "ai";
 import { NextResponse } from "next/server";
+import { ZodError } from "zod";
 
 import { buildQuickEditPrompt } from "./prompt";
 import { quickEditRequestSchema, quickEditResponseSchema } from "./schema";
 import { scrapeUrlsFromInstruction } from "./scraper";
+
+const MODEL_AI = process.env.MODEL_AI;
+if (!MODEL_AI) {
+  throw new Error("Missing MODEL_AI environment variable");
+}
 
 export async function POST(request: Request) {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const payload = quickEditRequestSchema.parse(body);
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { error: "Invalid JSON in request body" },
+        { status: 400 }
+      );
+    }
+
+    let payload;
+    try {
+      payload = quickEditRequestSchema.parse(body);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        return NextResponse.json(
+          { error: "Invalid request", details: error.issues },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
 
     const documentationContext = await scrapeUrlsFromInstruction(
       payload.instruction
@@ -38,7 +64,7 @@ export async function POST(request: Request) {
     });
 
     const { output } = await generateText({
-      model: google(process.env.MODEL_AI!),
+      model: google(MODEL_AI as Parameters<typeof google>[0]),
       output: Output.object({ schema: quickEditResponseSchema }),
       prompt,
     });

@@ -43,10 +43,12 @@ const createTooltipForSelection = (
         dom.className =
           "bg-popover text-popover-foreground z-50 rounded-sm border border-input p-1 shadow-md flex items-center gap-2 text-sm";
 
+        // TODO: Wire up to real chat handler when implemented
         const addToChatButton = document.createElement("button");
         addToChatButton.textContent = "Add to Chat";
         addToChatButton.className =
-          "font-sans p-1 px-2 hover:bg-foreground/10 rounded-sm";
+          "font-sans p-1 px-2 hover:bg-foreground/10 rounded-sm opacity-50 cursor-not-allowed";
+        addToChatButton.disabled = true;
 
         const quickEditButton = document.createElement("button");
         quickEditButton.className =
@@ -56,7 +58,7 @@ const createTooltipForSelection = (
         quickEditButtonText.textContent = "Quick Edit";
 
         const quickEditButtonShortcut = document.createElement("span");
-        quickEditButtonShortcut.textContent = "i";
+        quickEditButtonShortcut.textContent = "⌘I";
         quickEditButtonShortcut.className = "text-sm opacity-60";
 
         quickEditButton.appendChild(quickEditButtonText);

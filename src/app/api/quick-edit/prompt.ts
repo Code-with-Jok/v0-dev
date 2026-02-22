@@ -37,8 +37,15 @@ interface BuildPromptParams extends QuickEditRequest {
 }
 
 export const buildQuickEditPrompt = (params: BuildPromptParams): string => {
-  return QUICK_EDIT_TEMPLATE.replace("{selectedCode}", params.selectedCode)
-    .replace("{fullCode}", params.fullCode || "")
-    .replace("{instruction}", params.instruction)
-    .replace("{documentation}", params.documentationContext);
+  const replacements: Record<string, string> = {
+    selectedCode: params.selectedCode,
+    fullCode: params.fullCode || "",
+    instruction: params.instruction,
+    documentation: params.documentationContext,
+  };
+
+  return QUICK_EDIT_TEMPLATE.replace(
+    /\{(selectedCode|fullCode|instruction|documentation)\}/g,
+    (_, key: string) => replacements[key] ?? ""
+  );
 };

@@ -16,6 +16,14 @@ export class SuggestionWidget extends WidgetType {
     super();
   }
 
+  /**
+   * Override eq() để so sánh widget theo nội dung text.
+   * Nếu text giống nhau → reuse DOM cũ thay vì tạo lại.
+   */
+  eq(other: SuggestionWidget) {
+    return other.text === this.text;
+  }
+
   toDOM() {
     const span = document.createElement("span");
     span.textContent = this.text;
