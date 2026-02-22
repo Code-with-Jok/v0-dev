@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const prompt = buildSuggestionPrompt(payload);
 
     const { output } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: google(process.env.MODEL_AI!),
       output: Output.object({ schema: suggestionResponseSchema }),
       prompt,
     });

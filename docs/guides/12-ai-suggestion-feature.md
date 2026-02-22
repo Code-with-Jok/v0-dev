@@ -77,6 +77,195 @@ src/
     └── accept-keymap.ts         # Tab để chấp nhận
 ```
 
+## Luồng Chạy Code Chi Tiết (File → File)
+
+Dưới đây là **thứ tự chính xác** code chạy qua từng file, từ lúc user gõ phím đến lúc ghost text hiển thị.
+
+### Luồng 1: Trigger Suggestion (User gõ code → Ghost text xuất hiện)
+
+```mermaid
+sequenceDiagram
+    participant User as 👤 User
+    participant CE as code-editor.tsx
+    participant Idx as index.ts
+    participant DP as debounce-plugin.ts
+    participant PL as payload.ts
+    participant FT as fetcher.ts
+    participant SC as schema.ts
+    participant RT as route.ts
+    participant PM as prompt.ts
+    participant AI as 🤖 Gemini AI
+    participant ST as state.ts
+    participant RP as render-plugin.ts
+    participant WG as widget.ts
+
+    User->>CE: Gõ phím trong editor
+    Note over CE: CodeEditor mount → load extensions
+    CE->>Idx: suggestion(fileName)
+    Note over Idx: Return [suggestionState, debouncePlugin, renderPlugin, keymap]
+
+    Note over DP: docChanged detected!
+    DP->>DP: clearTimeout (reset timer cũ)
+    DP->>DP: abortController.abort() (hủy request cũ)
+    DP->>DP: setTimeout(300ms)
+    Note over DP: ⏱️ Chờ 300ms...
+
+    DP->>PL: generatePayload(view, fileName)
+    PL-->>DP: SuggestionRequest payload
+
+    DP->>FT: fetcher(payload, signal)
+    FT->>SC: suggestionRequestSchema.parse(payload)
+    SC-->>FT: validated payload ✅
+
+    FT->>RT: POST /api/suggestion (HTTP)
+    RT->>SC: suggestionRequestSchema.parse(body)
+    SC-->>RT: validated body ✅
+    RT->>PM: buildSuggestionPrompt(payload)
+    PM-->>RT: prompt string
+    RT->>AI: generateText(prompt)
+    AI-->>RT: { suggestion: "code gợi ý" }
+    RT-->>FT: JSON { suggestion: "..." }
+
+    FT->>SC: suggestionResponseSchema.parse(response)
+    SC-->>FT: validated response ✅
+    FT-->>DP: "code gợi ý"
+
+    DP->>ST: dispatch setSuggestionEffect.of("code gợi ý")
+    Note over ST: suggestionState = "code gợi ý"
+
+    ST->>RP: state changed → rebuild decorations
+    RP->>ST: view.state.field(suggestionState)
+    ST-->>RP: "code gợi ý"
+    RP->>WG: new SuggestionWidget("code gợi ý")
+    WG-->>RP: DOM span (opacity: 0.4)
+    RP-->>User: 👻 Ghost text hiển thị!
+```
+
+**Giải thích từng bước:**
+
+| Bước | File                 | Hành động                                                                          |
+| ---- | -------------------- | ---------------------------------------------------------------------------------- |
+| 1    | `code-editor.tsx`    | Component mount → gọi `suggestion(fileName)` từ `index.ts`                         |
+| 2    | `index.ts`           | Trả về array extensions: `[suggestionState, debouncePlugin, renderPlugin, keymap]` |
+| 3    | `debounce-plugin.ts` | Phát hiện `docChanged` → reset timer → đặt timer 300ms mới                         |
+| 4    | `debounce-plugin.ts` | Sau 300ms → gọi `generatePayload()`                                                |
+| 5    | `payload.ts`         | Trích xuất code context từ editor → trả về `SuggestionRequest` object              |
+| 6    | `fetcher.ts`         | Validate payload bằng `schema.ts` → POST lên `/api/suggestion`                     |
+| 7    | `schema.ts`          | Validate request body (dùng chung cho cả client lẫn server)                        |
+| 8    | `route.ts`           | Nhận request → validate → gọi `buildSuggestionPrompt()`                            |
+| 9    | `prompt.ts`          | Thay placeholder trong template → trả về prompt string                             |
+| 10   | `route.ts`           | Gọi Gemini AI → nhận suggestion → trả JSON response                                |
+| 11   | `fetcher.ts`         | Validate response bằng `schema.ts` → trả suggestion text                           |
+| 12   | `debounce-plugin.ts` | Dispatch `setSuggestionEffect` vào `state.ts`                                      |
+| 13   | `state.ts`           | `suggestionState` cập nhật = "code gợi ý"                                          |
+| 14   | `render-plugin.ts`   | Phát hiện state thay đổi → tạo `SuggestionWidget` từ `widget.ts`                   |
+| 15   | `widget.ts`          | Tạo `<span>` element với opacity 0.4 → ghost text xuất hiện                        |
+
+---
+
+### Luồng 2: Accept Suggestion (User nhấn Tab → Code được chèn)
+
+```mermaid
+sequenceDiagram
+    participant User as 👤 User
+    participant AK as accept-keymap.ts
+    participant ST as state.ts
+    participant CM as CodeMirror Editor
+    participant RP as render-plugin.ts
+
+    User->>AK: Nhấn Tab
+    AK->>ST: view.state.field(suggestionState)
+    ST-->>AK: "code gợi ý" (hoặc null)
+
+    alt Có suggestion
+        AK->>CM: dispatch changes (chèn text tại v0dev)
+        AK->>ST: dispatch setSuggestionEffect.of(null)
+        Note over ST: suggestionState = null
+        ST->>RP: state changed → rebuild
+        RP-->>User: Ghost text biến mất, code thật xuất hiện ✅
+    else Không có suggestion
+        AK-->>CM: return false (Tab indent bình thường)
+    end
+```
+
+**Giải thích:**
+
+| Bước | File               | Hành động                                             |
+| ---- | ------------------ | ----------------------------------------------------- |
+| 1    | `accept-keymap.ts` | Intercept phím Tab                                    |
+| 2    | `state.ts`         | Kiểm tra có suggestion không                          |
+| 3a   | `accept-keymap.ts` | **Có**: Chèn suggestion text vào editor + xóa state   |
+| 3b   | `accept-keymap.ts` | **Không**: Return `false` → Tab hoạt động bình thường |
+| 4    | `render-plugin.ts` | State = null → ghost text biến mất                    |
+
+---
+
+### Tổng hợp: File nào gọi file nào?
+
+```mermaid
+flowchart LR
+    subgraph Entry["🚪 Entry Point"]
+        CE["code-editor.tsx"]
+    end
+
+    subgraph Barrel["📦 Barrel"]
+        IDX["index.ts"]
+    end
+
+    subgraph Trigger["⚡ Trigger Flow"]
+        DP["debounce-plugin.ts"]
+        PL["payload.ts"]
+        FT["fetcher.ts"]
+    end
+
+    subgraph State["💾 State"]
+        ST["state.ts"]
+    end
+
+    subgraph Display["👁️ Display"]
+        RP["render-plugin.ts"]
+        WG["widget.ts"]
+        AK["accept-keymap.ts"]
+    end
+
+    subgraph API["☁️ Server"]
+        SC["schema.ts"]
+        RT["route.ts"]
+        PM["prompt.ts"]
+    end
+
+    CE -->|"import suggestion()"| IDX
+    IDX -->|"import"| ST
+    IDX -->|"import"| DP
+    IDX -->|"import"| RP
+    IDX -->|"import"| AK
+
+    DP -->|"import"| PL
+    DP -->|"import"| FT
+    DP -->|"import"| ST
+
+    FT -->|"import"| SC
+    FT -.->|"HTTP POST"| RT
+
+    RP -->|"import"| ST
+    RP -->|"import"| WG
+
+    AK -->|"import"| ST
+
+    RT -->|"import"| SC
+    RT -->|"import"| PM
+
+    style CE fill:#e1f5ff
+    style IDX fill:#fff4cc
+    style ST fill:#ffd6e8
+    style SC fill:#d4f1d4
+```
+
+> [!TIP]
+> Đường nét liền (`→`) = **import trực tiếp** (cùng codebase). Đường nét đứt (`-.->`) = **HTTP request** (client → server).
+
+---
+
 ## Giải Thích Chi Tiết Từng File
 
 ### 1. `schema.ts` — Validation chung (Server + Client)

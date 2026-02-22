@@ -52,6 +52,12 @@ graph TB
         SuggestionExt["✨ CodeMirror Extension"]
     end
 
+    subgraph "AI Quick Edit - Code Editing"
+        QuickEditAPI["✏️ Quick Edit API"]
+        QuickEditExt["📝 Quick Edit Extension"]
+        SelectionTooltip["👆 Selection Tooltip"]
+    end
+
     subgraph "Error Monitoring - Sentry"
         SentryClient["🐛 Sentry Client"]
         SentryServer["🐛 Sentry Server"]
@@ -73,6 +79,11 @@ graph TB
 
     SuggestionExt -->|"POST /api/suggestion"| SuggestionAPI
     SuggestionAPI --> Gemini
+
+    SelectionTooltip --> QuickEditExt
+    QuickEditExt -->|"POST /api/quick-edit"| QuickEditAPI
+    QuickEditAPI --> Firecrawl
+    QuickEditAPI --> Gemini
 
     Pages --> SentryClient
     Mutations & Queries --> SentryServer
@@ -331,6 +342,42 @@ flowchart TD
     style Render fill:#ffd6e8
 ```
 
+## Luồng Quick Edit (Sửa Code Bằng AI)
+
+```mermaid
+flowchart TD
+    subgraph Client["🖥️ Browser"]
+        Select["👆 Select code"]
+        Tooltip["🔲 Tooltip: Add to Chat / Quick Edit"]
+        PressI{"Nhấn i"}
+        Form["📝 Form: nhập instruction"]
+        Fetch["🌐 Gọi API (ky)"]
+        Replace["✅ Thay thế code"]
+    end
+
+    subgraph Server["⚙️ API Route"]
+        Validate["🔍 Validate"]
+        Scrape["🌐 Scrape URLs"]
+        BuildPrompt["📝 Build Prompt"]
+        AIEdit["🤖 Gemini AI"]
+    end
+
+    Select --> Tooltip
+    Tooltip --> PressI
+    PressI -->|"Yes"| Form
+    Form -->|"Submit"| Fetch
+    Fetch -->|"POST /api/quick-edit"| Validate
+    Validate --> Scrape
+    Scrape --> BuildPrompt --> AIEdit
+    AIEdit -->|"edited code"| Fetch
+    Fetch --> Replace
+
+    style Form fill:#fff4cc
+    style AIEdit fill:#e8f4ff
+    style Replace fill:#d4f1d4
+    style Scrape fill:#ffe8cc
+```
+
 ## Tóm tắt
 
 ### 🎯 Các Luồng Chính
@@ -359,3 +406,5 @@ flowchart TD
 - ✅ JWT authentication
 - ✅ Dark mode support
 - ✅ AI Code Suggestion (Gemini + CodeMirror Extension)
+- ✅ AI Quick Edit (Select + Instruction + Firecrawl)
+- ✅ Selection Tooltip (Add to Chat / Quick Edit)
