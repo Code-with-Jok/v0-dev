@@ -6,11 +6,7 @@
 [![Clerk](https://img.shields.io/badge/Auth-Clerk-purple?style=flat-square)](https://clerk.com/)
 [![Tailwind CSS](https://img.shields.io/badge/CSS-Tailwind%204-06B6D4?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 
-[English](#english) | [Tiếng Việt](#tiếng-việt)
-
 ---
-
-## English
 
 ### 🚀 Overview
 
@@ -82,67 +78,3 @@ v0-dev/
    ```
 
 ---
-
-## Tiếng Việt
-
-### 🚀 Tổng Quan
-
-**v0-dev** là một môi trường phát triển (IDE) tối ưu cho AI, lấy cảm hứng từ v0.dev của Vercel. Dự án kết hợp trình biên tập đa tệp thời gian thực với các khả năng AI tiên tiến, giúp lập trình viên xây dựng, cải thiện và triển khai ứng dụng web nhanh hơn bao giờ hết.
-
-### ✨ Tính Năng Nổi Bật
-
-- **🤖 Trí Tuệ Nhân Tạo Tích Hợp**: Sử dụng **Vercel AI SDK** và **Google Gemini** để tạo code và chỉnh sửa thông minh.
-- **💻 Trình Biên Tập Thời Gian Thực**: Môi trường đa tệp mạnh mẽ dựa trên **CodeMirror**, hỗ trợ syntax highlighting, minimap và quản lý tab.
-- **⚡ Luồng AI Tiên Tiến**:
-  - **Ghost Text Suggestions**: Gợi ý code trực tiếp khi bạn đang gõ (nhấn Tab để chấp nhận).
-  - **Quick Edit**: Chọn một đoạn code và gửi hướng dẫn cho AI để sửa lỗi hoặc refactor ngay lập tức.
-  - **Web-Aware Context**: Tích hợp **Firecrawl** để quét dữ liệu từ các URL/tài liệu web vào bối cảnh của AI.
-- **🔄 Đồng Bộ Tức Thì**: Xây dựng trên nền tảng **Convex**, đảm bảo mọi thay đổi về tệp, tin nhắn và dự án được cập nhật ngay lập tức trên mọi thiết bị.
-- **🔐 Bảo Mật & Quy Mô**: Xác thực chuẩn doanh nghiệp qua **Clerk** và xử lý tác vụ nền với **Inngest**.
-- **📊 Giám Sát Toàn Diện**: Theo dõi lỗi và hiệu năng full-stack với **Sentry**.
-
-### 🛠️ Công Nghệ Sử Dụng
-
-- **Framework**: [Next.js 16](https://nextjs.org/) (App Router), [React 19](https://react.dev/)
-- **Cơ sở dữ liệu & Backend**: [Convex](https://convex.dev/) (Real-time DB, Server Functions)
-- **Xác thực**: [Clerk](https://clerk.com/)
-- **Hệ sinh thái AI**: [Vercel AI SDK](https://sdk.vercel.ai/), [Google Gemini](https://ai.google.dev/), [Firecrawl](https://firecrawl.dev/)
-- **Giao diện**: [Tailwind CSS 4](https://tailwindcss.com/), [Radix UI](https://www.radix-ui.com/), [Motion (Framer)](https://motion.dev/), [Lucide Icons](https://lucide.dev/)
-- **Logic & Giám sát**: [Zod](https://zod.dev/), [Inngest](https://www.inngest.com/), [Sentry](https://sentry.io/)
-
-### 📁 Cấu Trúc Thư Mục
-
-Dự án được tổ chức theo mô hình **Feature-driven Development**:
-
-- `convex/`: Logic backend, schema và database functions.
-- `src/features/editor/`: Trình biên tập code, quản lý tab và cơ chế tự động lưu.
-- `src/features/conversations/`: Giao diện chat với AI và tích hợp Gemini.
-- `src/features/projects/`: Quản lý danh sách dự án và cài đặt.
-
-### 🚀 Bắt Đầu
-
-1. **Cài đặt**:
-
-   ```bash
-   npm install
-   ```
-
-2. **Cấu hình môi trường**:
-   Thiết lập các biến môi trường trong `.env.local` cho Clerk, Convex, Google Gemini, và Firecrawl.
-
-3. **Chạy Backend (Convex)**:
-
-   ```bash
-   npx convex dev
-   ```
-
-4. **Chạy Frontend (Next.js)**:
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 📜 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
